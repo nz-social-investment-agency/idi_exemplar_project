@@ -161,6 +161,7 @@ part_year_cal AS (
 		  ,SUM([inc_cal_yr_mth_11_amt]) AS mnth11
 		  ,SUM([inc_cal_yr_mth_12_amt]) AS mnth12
 	FROM [IDI_Clean_20201020].[data].[income_cal_yr]
+	WHERE [inc_cal_yr_income_source_code] = 'W&S'
 	GROUP BY [inc_cal_yr_year_nbr], [snz_uid], [snz_employer_ird_uid]
 ),
 part_year_tax AS (
@@ -177,6 +178,7 @@ part_year_tax AS (
 		  ,SUM([inc_tax_yr_mth_08_amt]) AS mnth08
 		  ,SUM([inc_tax_yr_mth_09_amt]) AS mnth09
 	FROM [IDI_Clean_20201020].[data].[income_tax_yr]
+	WHERE [inc_tax_yr_income_source_code] = 'W&S'
 	GROUP BY [inc_tax_yr_year_nbr], [snz_uid], [snz_employer_ird_uid]
 )
 SELECT IIF(ABS(ISNULL(t.mnth01, 0) - ISNULL(c.mnth04, 0)) < 1, 'Y', 'N') AS match04
@@ -192,7 +194,7 @@ SELECT IIF(ABS(ISNULL(t.mnth01, 0) - ISNULL(c.mnth04, 0)) < 1, 'Y', 'N') AS matc
 FROM part_year_cal AS c
 FULL OUTER JOIN part_year_tax AS t
 ON c.snz_uid = t.snz_uid
-AND c.[inc_cal_yr_year_nbr] = t.[inc_tax_yr_year_nbr] + 1
+AND c.[inc_cal_yr_year_nbr] = t.[inc_tax_yr_year_nbr] - 1
 AND c.[snz_employer_ird_uid] = t.[snz_employer_ird_uid]
 GROUP BY IIF(ABS(ISNULL(t.mnth01, 0) - ISNULL(c.mnth04, 0)) < 1, 'Y', 'N')
 	,IIF(ABS(ISNULL(t.mnth02, 0) - ISNULL(c.mnth05, 0)) < 1, 'Y', 'N')
